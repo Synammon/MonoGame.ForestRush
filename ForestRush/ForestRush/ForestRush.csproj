@@ -30,4 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Psilibrary\Psilibrary.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Player\" />
+  </ItemGroup>
 </Project>

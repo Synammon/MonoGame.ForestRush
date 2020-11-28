@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ForestRush.GameStates;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Psilibrary;
@@ -15,13 +16,10 @@ namespace ForestRush
         private readonly GraphicsDeviceManager graphics;
         private readonly StateManager stateManager;
         private readonly TextureManager textureManager;
-        private readonly ScrollingBackgroundManager scrollingBackgroundManager;
 
         private SpriteBatch spriteBatch;
 
-        private Camera camera;
-        private Engine engine;
-        private World world;
+        public GamePlayState GamePlayState { get; private set; }
 
         public SpriteBatch SpriteBatch
         {
@@ -40,8 +38,8 @@ namespace ForestRush
             textureManager = new TextureManager(this);
             Components.Add(textureManager);
 
-            scrollingBackgroundManager = new ScrollingBackgroundManager(this);
-            Components.Add(scrollingBackgroundManager);
+            GamePlayState = new GamePlayState(this);
+            stateManager.PushState(GamePlayState);
         }
 
         /// <summary>
@@ -71,55 +69,6 @@ namespace ForestRush
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            world = new World();
-            
-            Tileset tileset = new Tileset(
-                Content.Load<Texture2D>(@"Tileset"),
-                8,
-                6,
-                16,
-                16);
-
-            MapLayer baseLayer = new MapLayer(new Tile[30, 100]);
-
-            for (int i = 0; i < 100; i++)
-            {
-                for (int j = 0; j < 30; j++)
-                {
-                    baseLayer.SetTile(i, j, new Tile(-1, -1));
-                }
-            }
-
-            for (int i = 0; i < 100; i++)
-            {
-                baseLayer.SetTile(i, 29, new Tile(1, 0));
-            }
-
-            TileMap map = new TileMap("test", tileset, baseLayer, new CollisionLayer(), new PortalLayer());
-            map.PortalLayer.Portals.Add("test", new Portal(new Point(0, 0), new Point(0, 28), "test"));
-            
-            world.AddMap("test", map);
-            world.ChangeMap("test", "test");
-            
-            camera = new Camera(new Rectangle(0, 0, 1280, 720));
-            
-            engine = new Engine(32, 32);
-
-            scrollingBackgroundManager.AddBackground(
-                "Sky",
-                "BG1",
-                Vector2.Zero,
-                5.01f);
-            scrollingBackgroundManager.AddBackground(
-                "Mountains",
-                "BG2",
-                Vector2.Zero,
-                10.25f);
-            scrollingBackgroundManager.AddBackground(
-                "Hills",
-                "BG3",
-                Vector2.Zero,
-                20.5f);
         }
 
         /// <summary>
@@ -141,9 +90,6 @@ namespace ForestRush
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            camera.Update(gameTime, world.CurrentMap);
-            camera.LockCamera(world.CurrentMap);
-
             base.Update(gameTime);
         }
 
@@ -154,25 +100,6 @@ namespace ForestRush
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            spriteBatch.Begin();
-            scrollingBackgroundManager.Draw("Sky", SpriteBatch);
-            scrollingBackgroundManager.Draw("Mountains", SpriteBatch);
-            scrollingBackgroundManager.Draw("Hills", SpriteBatch);
-            SpriteBatch.End();
-
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.PointClamp,
-                null,
-                null,
-                null,
-                camera.Transformation);
-
-            world.CurrentMap.Draw(gameTime, spriteBatch, camera);
-
-            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

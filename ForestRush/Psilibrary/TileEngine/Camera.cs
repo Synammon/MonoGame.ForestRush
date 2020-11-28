@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Psilibrary.SpriteClasses;
 
 namespace Psilibrary.TileEngine
 {
@@ -118,6 +119,15 @@ namespace Psilibrary.TileEngine
                 LockCamera(map);
             }
 
+        }
+
+        public void LockToSprite(TileMap map, AnimatedAtlasSprite sprite)
+        {
+            position.X = (sprite.Position.X + sprite.Width)
+                            - (viewportRectangle.Width / 2);
+            position.Y = (sprite.Position.Y + sprite.Height)
+                            - (viewportRectangle.Height / 2);
+            LockCamera(map);
         }
 
         public void ZoomIn()
